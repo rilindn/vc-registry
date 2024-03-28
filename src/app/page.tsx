@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 import { useSession } from 'next-auth/react';
 
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import { authOptions } from "./api/auth/[...nextauth]/options";
 import ConfirmEmailDialog from "../components/Home/ConfirmEmailDialog/ConfirmEmailDialog";
 import Button from "@/components/Buttons/Button/Button";
 import HomeBody from "@/components/Home/HomeBody/HomeBody";

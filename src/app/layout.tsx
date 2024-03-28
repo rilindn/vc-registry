@@ -1,14 +1,10 @@
-
-import { Inter } from 'next/font/google'
 import { getServerSession } from 'next-auth';
+import { Analytics } from '@vercel/analytics/react';
 
-import { authOptions } from "./api/auth/[...nextauth]/route";
 import { NextAuthProvider } from './context/NextAuthProvider';
 import './globals.css'
 import Header from '@/components/Header/Header';
-
-const inter = Inter({ subsets: ['latin'] })
-import { Analytics } from '@vercel/analytics/react';
+import { authOptions } from './api/auth/[...nextauth]/options';
 
 export const metadata = {
   title: 'Thought Bank',
@@ -24,9 +20,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className='min-h-screen'>
-        <Analytics/>
+        <Analytics />
         <NextAuthProvider session={session}>
-          {!!session && <Header/>}
+          {!!session && <Header />}
           {children}
         </NextAuthProvider>
       </body>
