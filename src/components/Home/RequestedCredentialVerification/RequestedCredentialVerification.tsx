@@ -12,9 +12,7 @@ import { useSession } from 'next-auth/react';
 import _ from 'lodash'
 
 import { getCredVerificationRequestsByVerifier } from '../../../../lib/api/FlureeMethods';
-import Button from '@/components/Buttons/Button/Button';
-import styles from './RequestedCredentialVerification.module.scss'
-import { updateCredVerification } from '../../../../lib/api/ApiMethods';
+import CredentialVerificationRow from './CredentialVerificationRow/CredentialVerificationRow';
 
 interface IRequestedCredentialVerification {
   "@id": string
@@ -32,7 +30,6 @@ interface IRequestedCredentialVerification {
 export default function RequestedCredentialVerification() {
   const { data: session } = useSession()
   const [myCredentialVerifications, setMyCredentialVerifications] = useState<IRequestedCredentialVerification[]>([])
-  const [loadingActionBtn, setLoadingActionBtn] = useState('')
 
   useEffect(() => {
     fetchMyCredentialVerifications();
@@ -44,16 +41,6 @@ export default function RequestedCredentialVerification() {
 
     const requests = await getCredVerificationRequestsByVerifier(user)
     setMyCredentialVerifications(requests)
-  }
-
-  const handleUpdateVerification = async (id: string, status: string) => {
-    setLoadingActionBtn(status)
-    try {
-      const res = await updateCredVerification({ id, status })
-    } finally {
-      await fetchMyCredentialVerifications();
-      setLoadingActionBtn('')
-    }
   }
 
   return (
@@ -70,39 +57,11 @@ export default function RequestedCredentialVerification() {
           </TableHead>
           <TableBody>
             {myCredentialVerifications.map((v) => (
-              <TableRow
+              <CredentialVerificationRow
                 key={v["@id"]}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {v.user['user:userName']}
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {v.user['user:email']}
-                </TableCell>
-                <>
-                  {v.status === 'pending' ?
-                    <TableCell sx={{ display: 'flex', gap: 2 }}>
-                      <Button
-                        loading={loadingActionBtn === 'accepted'}
-                        className={styles.approveButton}
-                        title='Approve'
-                        onClick={() => handleUpdateVerification(v["@id"], 'accepted')}
-                      />
-                      <Button
-                        loading={loadingActionBtn === 'denied'}
-                        className={styles.denyButton}
-                        title='Deny'
-                        onClick={() => handleUpdateVerification(v["@id"], 'denied')}
-                      />
-                    </TableCell> :
-                    <TableCell sx={{ fontSize: 14 }}>
-                      {_.capitalize(v.status)}
-                      {v.status === 'accepted' ? ' ✅' : v.status === 'denied' ? ' ❌' : ' ⏳'}
-                    </TableCell>
-                  }
-                </>
-              </TableRow>
+                v={v}
+                refetchMyCredentialVerifications={fetchMyCredentialVerifications}
+              />
             ))}
           </TableBody>
         </Table>
@@ -110,3 +69,4 @@ export default function RequestedCredentialVerification() {
     </div>
   );
 }
+
