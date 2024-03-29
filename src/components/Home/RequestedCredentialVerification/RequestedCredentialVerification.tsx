@@ -32,6 +32,7 @@ interface IRequestedCredentialVerification {
 export default function RequestedCredentialVerification() {
   const { data: session } = useSession()
   const [myCredentialVerifications, setMyCredentialVerifications] = useState<IRequestedCredentialVerification[]>([])
+  const [loadingActionBtn, setLoadingActionBtn] = useState('')
 
   useEffect(() => {
     fetchMyCredentialVerifications();
@@ -45,11 +46,13 @@ export default function RequestedCredentialVerification() {
     setMyCredentialVerifications(requests)
   }
 
-  const handleUpdateVerification = (id: string, status: string) => {
+  const handleUpdateVerification = async (id: string, status: string) => {
+    setLoadingActionBtn(status)
     try {
-      const res = updateCredVerification({ id, status })
+      const res = await updateCredVerification({ id, status })
     } finally {
-      fetchMyCredentialVerifications();
+      await fetchMyCredentialVerifications();
+      setLoadingActionBtn('')
     }
   }
 
@@ -80,8 +83,18 @@ export default function RequestedCredentialVerification() {
                 <>
                   {v.status === 'pending' ?
                     <TableCell sx={{ display: 'flex', gap: 2 }}>
-                      <Button className={styles.approveButton} title='Approve' onClick={() => handleUpdateVerification(v["@id"], 'accepted')} />
-                      <Button className={styles.denyButton} title='Deny' onClick={() => handleUpdateVerification(v["@id"], 'denied')} />
+                      <Button
+                        loading={loadingActionBtn === 'accepted'}
+                        className={styles.approveButton}
+                        title='Approve'
+                        onClick={() => handleUpdateVerification(v["@id"], 'accepted')}
+                      />
+                      <Button
+                        loading={loadingActionBtn === 'denied'}
+                        className={styles.denyButton}
+                        title='Deny'
+                        onClick={() => handleUpdateVerification(v["@id"], 'denied')}
+                      />
                     </TableCell> :
                     <TableCell sx={{ fontSize: 14 }}>
                       {_.capitalize(v.status)}
